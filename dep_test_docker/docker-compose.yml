@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+
+  ansible08:
+    build: ./docker-file/common/
+    platform: linux/x86_64
+    container_name: ansible_server08
+    tmpfs:
+     - /run
+     - /tmp:exec,mode=777
+    ports:
+      - "8010:80"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    stop_signal: SIGRTMIN+3
+    networks:
+      mylocalnet01:
+        ipv4_address: 172.50.0.108
+    command: /sbin/init
+
+  ansible09:
+    build: ./docker-file/common/
+    platform: linux/x86_64
+    container_name: ansible_server09
+    tmpfs:
+     - /run
+     - /tmp:exec,mode=777
+    ports:
+      - "8020:80"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    stop_signal: SIGRTMIN+3
+    networks:
+      mylocalnet01:
+        ipv4_address: 172.50.0.109
+    command: /sbin/init
+
+networks:
+  mylocalnet01:
+    driver: bridge
+    ipam:
+     driver: default
+     config:
+      - subnet: 172.50.0.0/16

@@ -1,0 +1,13 @@
+---
+# tasks file for php
+- name: configure /Configure required php packages
+  lineinfile:
+    path: /etc/php.ini
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+   - { regexp: '^post_max_size = ', line: 'post_max_size = 128M'}
+   - { regexp: '^upload_max_filesize = ', line: 'upload_max_filesize = 128M'}
+  notify: restart_httpd
+
+

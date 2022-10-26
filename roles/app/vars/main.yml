@@ -1,0 +1,6 @@
+---
+# vars file for app
+yum_packages:
+ - gcc-c++
+ - gcc
+ - kernel-devel

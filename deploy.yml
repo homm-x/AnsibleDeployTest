@@ -1,0 +1,44 @@
+---
+- name: common configuration to all nodes
+  hosts: all
+  remote_user: ma
+  become: yes
+  roles:
+    - common
+
+- name: Deploy webservers
+  hosts: web_servers
+  remote_user: ma
+  become: yes
+  roles:
+    - apache
+    - php
+
+- name: Deploy databases
+  hosts: databases
+  remote_user: ma
+  become: yes
+  roles:
+    - postgres
+
+- name: Deploy python
+  hosts: python
+  remote_user: ma
+  become: yes
+  roles:
+    - python
+
+- name: Deploy application
+  hosts: application
+  remote_user: ma
+  become: yes
+  roles:
+    - app
+
+
+#- name: Rsync delectory
+#  hosts: Rsync_{プロジェクト}
+#  remote_user: ma
+#  become: yes
+#  roles:
+#    - rsync

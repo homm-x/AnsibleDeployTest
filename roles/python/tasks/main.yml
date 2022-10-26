@@ -1,0 +1,6 @@
+---
+# tasks file for python
+- include_tasks: roles/python/tasks/check_install.yml
+- include_tasks: roles/python/tasks/install.yml
+- include_tasks: roles/python/tasks/configure.yml
+

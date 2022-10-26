@@ -1,0 +1,5 @@
+---
+# tasks file for app
+- include_tasks: roles/app/tasks/check_install.yml
+- include_tasks: roles/app/tasks/install.yml
+- include_tasks: roles/app/tasks/configure.yml

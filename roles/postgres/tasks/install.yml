@@ -1,0 +1,32 @@
+---
+# tasks file for postgres
+- name: /install /Import postgres10 repository
+  yum:
+    name: https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm
+    state: present
+
+- name: install /Install required packages
+  yum:
+    name: "{{ postgres_packages }}"
+    state: present
+
+- name: install / check  psql.org
+  stat:
+    path: /usr/bin/psql.org
+  register: psql_check
+
+- name: install / backup psql.org
+  shell: bash -lc "mv /usr/bin/psql /usr/bin/psql.org"
+  when: not psql_check.stat.exists
+
+- name: install / symboliclink
+  shell: bash -lc "ln -s /usr/pgsql-10/bin/psql /usr/bin/psql"
+  when: not psql_check.stat.exists
+
+- name: postgresql initdb
+  shell: /usr/pgsql-10/bin/postgresql-10-setup initdb
+  args:
+    creates: /var/lib/pgsql/10/data/postgresql.conf
+
+- name: start postgresql-10
+  systemd: name=postgresql-10 state=started enabled=yes

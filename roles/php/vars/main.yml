@@ -1,0 +1,7 @@
+---
+# vars file for php
+php_packages:
+ - php
+ - php-devel
+ - php-mbstring
+ - php-gd

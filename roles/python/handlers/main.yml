@@ -1,0 +1,5 @@
+---
+# handlers file for python
+- name: source /etc/profile
+  shell:  bash -lc "source /etc/profile"
+

@@ -1,0 +1,4 @@
+---
+# vars file for postgres
+postgres_packages:
+ - postgresql10-server

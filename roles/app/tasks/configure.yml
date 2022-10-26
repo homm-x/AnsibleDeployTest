@@ -1,0 +1,10 @@
+---
+# tasks file for app
+
+- name: configure / Environment variable
+  lineinfile:
+    path: /etc/profile.d/pr.sh
+    line: "{{ item }}"
+  with_items:
+   - 'export PR_ENV="development"'
+   - 'export PR_RES_ONLY=True'

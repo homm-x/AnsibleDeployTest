@@ -1,0 +1,79 @@
+---
+# tasks file for python
+- name: install / import pyenv setup
+  yum:
+    name: "{{ pyenv_packages }}" 
+    state: present
+    update_cache: yes
+
+- name: install / import pyenv
+  git: 
+    repo: https://github.com/pyenv/pyenv.git
+    dest: /usr/local/.pyenv
+    accept_hostkey: yes 
+
+
+- name: configure / make profile.d/python.sh
+  file:
+    path: /etc/profile.d/python.sh
+    state: touch
+    access_time: preserve
+    modification_time: preserve
+    owner: root
+    group: root
+    mode:  0444
+
+- name: configure / Configure required python packages
+  lineinfile:
+    path: /etc/sudoers
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+   - { regexp: '^#?\s*Defaults   env_keep', line: 'Defaults   env_keep += PYENV_ROOT'}
+   - { regexp: '^Defaults    secure_path =', line: 'Defaults    secure_path = /usr/local/.pyenv/shims:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin'}
+
+- name: configure / Configure required python packages
+  lineinfile:
+    path: /etc/profile.d/python.sh
+    line: "{{ item }}"
+  with_items:
+   - 'export PYENV_ROOT=/usr/local/.pyenv'
+   - 'export PATH="$PYENV_ROOT/bin:$PATH"'
+   - 'eval "$(pyenv init -)"'
+
+- name: install / import python
+  #shell: env PYTHON_CONFIGURE_OPTS="--enable-shared" /usr/local/.pyenv/bin/pyenv install 3.6.5
+  shell: bash -lc "env PYTHON_CONFIGURE_OPTS='--enable-shared' pyenv install {{ python_versions }}"
+  args:
+    creates: "/usr/local/.pyenv/versions/{{ python_versions }}"
+
+
+- shell: bash -lc "python -V"
+  register: pyenv_version_check
+  ignore_errors: yes
+  changed_when: False
+
+- name: install / global python3.6.5
+  shell: bash -lc "pyenv global {{ python_versions }}"
+  when: " python_versions not in pyenv_version_check.stdout"
+
+- name: install / yum install "pip install setup module"
+  yum:
+    name: "{{ pip_install_set_module }}" 
+    state: present
+    update_cache: yes
+
+- name: install / set_fact pyenv python
+  set_fact: ansible_python_interpreter=/usr/local/.pyenv/shims/python
+
+- name: install / pip upgrade pip
+  shell: bash -lc " pip install --upgrade pip"
+  register: result
+  changed_when: '"Requirement already up-to-date" not in result.stdout'
+
+- name: install / pip install module
+  pip:
+    name: "{{ python_pip_module }}"
+
+- name: install / set_fact default python 
+  set_fact: ansible_python_interpreter=/usr/bin/python

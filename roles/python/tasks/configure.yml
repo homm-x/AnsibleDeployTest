@@ -1,0 +1,8 @@
+---
+# tasks file for python
+
+- name: configure / chmod python shims
+  file: 
+    path: /usr/local/.pyenv/shims
+    state: directory
+    mode: 0777 

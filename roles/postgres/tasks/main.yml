@@ -1,0 +1,5 @@
+---
+# tasks file for postgres
+- include_tasks: roles/postgres/tasks/check_install.yml
+- include_tasks: roles/postgres/tasks/install.yml
+- include_tasks: roles/postgres/tasks/configure.yml

@@ -1,0 +1,11 @@
+
+#対象サーバへ鍵を渡す。
+ssh-copy-id -o StrictHostKeyChecking=no -i $HOME/.ssh/id_rsa.pub ma@[対象サーバのIPアドレス]
+#対象サーバへデプロイ
+ansible-playbook -i inventory/host.ini deploy.yml
+
+#対象サーバの情報変更(暗号化)
+ansible-vault edit host_sec.ini
+#対象サーバへデプロイ
+ansible-playbook -i inventory/host_sec.ini deploy.yml --ask-vault-pass
+

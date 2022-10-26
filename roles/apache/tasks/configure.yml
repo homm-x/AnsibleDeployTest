@@ -1,0 +1,44 @@
+---
+# tasks file for apache
+
+- name: template / check httpd vhost.conf　
+  stat:
+    path: /etc/httpd/conf.d/vhost.conf
+  register: vhost
+
+- name: template / httpd vhost.conf
+  template:
+    src: vhost.conf.j2 
+    dest: /etc/httpd/conf.d/vhost.conf
+  when: not vhost.stat.exists
+  notify: restart_httpd
+
+- name: configure / chown chmod directory var/www/html
+  file:
+    path: /var/www/html
+    state: directory
+    owner: apache
+    group: ma
+    mode:  0775
+
+- name: configure / hidden apache testpage
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '.*FollowSymLinks$'
+    line: 'Options FollowSymLinks'
+  notify: restart_httpd
+
+- name: configure / hidden apache welcome.conf
+  lineinfile:
+    path: /etc/httpd/conf.d/welcome.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  notify: restart_httpd
+  with_items:
+   - { regexp: '<LocationMatch ', line: '#<LocationMatch "^/+$">'}
+   - { regexp: 'Options -Indexes', line: '#Options -Indexes'}
+   - { regexp: 'ErrorDocument 403 /.noindex.html', line: '#ErrorDocument 403 /.noindex.html'}
+   - { regexp: '</LocationMatch>', line: '#</LocationMatch>'}
+
+- name: start_httpd
+  systemd: name=httpd state=started enabled=yes

@@ -1,0 +1,48 @@
+---
+# tasks file for app
+- name: install / import setup
+  yum:
+    name: "{{ yum_packages }}"
+    state: present
+    update_cache: yes
+
+- name: install / mecab_install_check
+  shell: bash -lc "mecab -v"
+  register: mecab_install_check
+  failed_when: LANG_set_check.rc not in [0,1]
+  changed_when: False
+
+- name: install / set_fact pyenv python
+  set_fact: ansible_python_interpreter=/usr/local/.pyenv/shims/python
+
+- name: install / import MeCab
+  shell: bash -lc "mkdir -p /tmp/install_mecab && cd /tmp/install_mecab && wget 'https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7cENtOXlicTFaRUE' -O mecab-0.996.tar.gz && tar zxvf mecab-0.996.tar.gz && cd mecab-0.996 && ./configure --with-charset=utf8 --enable-utf8-only && make && make install"
+  #when: mecab_install_check.rc == 0
+  args:
+   creates: /usr/local/bin/mecab
+
+
+- name: install / import ipadic
+  shell: bash -lc "mkdir -p /tmp/install_mecab && cd /tmp/install_mecab && wget 'https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM' -O mecab-ipadic-2.7.0-20070801.tar.gz && tar zxvf mecab-ipadic-2.7.0-20070801.tar.gz && cd mecab-ipadic-2.7.0-20070801 && ./configure --with-charset=utf8 && make && make install"
+  #when: mecab_install_check.rc == 0
+  args:
+   creates: /usr/local/lib/mecab/dic/ipadic
+
+- name: install / mecab_python_install_check
+  shell: bash -lc "python -m pip freeze | grep mecab"
+  register: mecab_python_check
+  failed_when: LANG_set_check.rc not in [0,1]
+  changed_when: False
+
+- name: install / import MeCab-Python
+  shell: bash -lc "mkdir -p /tmp/install_mecab && cd /tmp/install_mecab && wget 'https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7UlJpaWJKM01KRVE' -O mecab-python-0.996.tar.gz && tar zxvf mecab-python-0.996.tar.gz && cd mecab-python-0.996 && sed -i -e 's/string.split (cmd1(str))/cmd1(str).split()/' setup.py && python setup.py build && python setup.py install && echo '/usr/local/lib' >> /etc/ld.so.conf && ldconfig "
+  when: mecab_python_check.rc == 1
+
+- name: install / import nltk
+  shell: bash -lc "python -m nltk.downloader -d /usr/local/share/nltk_data popular"
+  args:
+    creates: /usr/local/share/nltk_data 
+
+- name: install / set_fact default python
+  set_fact: ansible_python_interpreter=/usr/bin/python
+

@@ -1,0 +1,14 @@
+---
+# tasks file for php
+- name: install /import Remi repository
+  yum:
+    name: http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+    state: present
+    update_cache: yes
+
+- name: install /Install required packages
+  yum:
+   name: "{{ php_packages }}"
+   state: present
+   enablerepo: remi,remi-php71
+  notify: restart_httpd 
